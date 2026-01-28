@@ -1,0 +1,53 @@
+image: google/cloud-sdk:latest
+
+stages:
+  - validate
+  - deploy
+  - verify
+
+variables:
+  KUBE_NAMESPACE: default
+
+before_script:
+  - echo "Starting GitLab CI Pipeline"
+  - gcloud --version
+  - kubectl version --client
+
+  # Authenticate (using runner VM / stored creds)
+  - gcloud auth list
+  - gcloud config set project skillfyme-project
+
+  # Connect to GKE
+  - gcloud container clusters get-credentials dev-cluster --region us-central1
+
+validate:
+  stage: validate
+  script:
+    - kubectl apply --dry-run=client -f deployment.yaml
+
+deploy:
+  stage: deploy
+  script:
+    - kubectl apply -f deployment.yaml
+
+verify:
+  stage: verify
+  script:
+    - kubectl rollout status deployment/cicd-app --timeout=120s
+
+
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                                                                
+~                                                                                                                                                       
